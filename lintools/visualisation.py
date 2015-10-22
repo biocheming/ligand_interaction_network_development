@@ -13,7 +13,7 @@ import json
 import matplotlib.pyplot as plt
 
 import sys
-import ExtractData
+import extract_data
 
 ##########################################################################
 
@@ -43,7 +43,7 @@ if __name__ == "__main__":
 	args = parser.parse_args()
 	
 	# Load the contact data
-	contacts_loaded = ExtractData.ContactsData()
+	contacts_loaded = extract_data.ContactsData()
 	contacts_loaded.from_cache(args.name)
 
 	# Manipulate + visualise the data

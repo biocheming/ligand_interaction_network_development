@@ -22,8 +22,8 @@ import matplotlib.pyplot as plt
 import sys
 from argparse import ArgumentParser
 
-import Visualisation
-import ExtractData
+import visualisation
+import extract_data
 
 ##########################################################################
 
