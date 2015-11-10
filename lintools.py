@@ -61,11 +61,10 @@ if __name__ == '__main__':
 	lig.make_new_projection_values()
 	lig.get_projection_values()
 	lig.get_x_y_values()
-	lig.draw_figure(args.diagram_type, ligand_name, args.output_name)
-	file_list=[ligand_name+".pdb", "molecule_modified1.svg", "molecule_final.svg", "molecule.svg"]
-	import glob
-	for f in file_list:
-		os.remove(f)
+	lig.draw_figure(args.diagram_type, ligand_name, args.output_name, args.grofile, args.xtcfile)
+	#file_list=[ligand_name+".pdb", "molecule_modified1.svg", "molecule_final.svg", "molecule.svg"]
+	#for f in file_list:
+	#	os.remove(f)
 	print "Ready!"
 
 	print "The figure you created has been saved under filename "+args.output_name+".svg"

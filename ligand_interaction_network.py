@@ -21,6 +21,7 @@ import pylab
 from collections import Counter
 import json
 import sys
+import fileinput
 
 from MDAnalysis import analysis
 from MDAnalysis.analysis import distances
@@ -192,7 +193,7 @@ class LigandInteractions(object):
     
     def define_amino_acids(self):
         #Group amino acids by charge and structure
-        self.amino_acids = {"acidic":["ASP","GLU"], "basic":["HIS","LYS","ARG"], "aromatic":["PHE","TYR","TRP"],"polar":["SER","THR","ASN","GLN","CYS"],"hydrophobic":["ALA","VAL","ILE","LEU","MET","GLY"]}
+        self.amino_acids = {"acidic":["ASP","GLU"], "basic":["LYS","ARG"], "aromatic":["PHE","TYR","TRP"],"polar":["SER","THR","ASN","GLN","CYS","HIS"],"hydrophobic":["ALA","VAL","ILE","LEU","MET","GLY"]}
         #Color scheme
         self.colors_amino_acids = {"acidic":"#889DCC", "basic":"#D06AC1", "aromatic":"#9FC74A", "polar":"#D9774B","hydrophobic":"#6AC297"}
         self.amino_acid_type={}
@@ -396,13 +397,32 @@ class LigandInteractions(object):
             self.nearest_points[residue] = self.b.boundary.interpolate(self.new_nearest_points_projection[residue] % self.b.boundary.length)
         
 
-    def draw_figure(self,diagramm_type, ligand_name, output_name):
+    def find_solvent_exp_atoms(self, grofile, ligand_name):
+        solvent_exposed_atoms = []
+        sol_exp = MDAnalysis.Universe(grofile)
+        solvent_exposed = sol_exp.select_atoms("resname "+ligand_name+" and not name H* and not around 3.35 protein ")
+        for atom in solvent_exposed.atoms.names:
+            solvent_exposed_atoms.append(atom)
+        ligand = MDAnalysis.Universe(ligand_name+".pdb")
+        atom_indices=[]
+        for atom in ligand.atoms.indices:
+            if ligand.atoms.names[atom] in solvent_exposed_atoms:
+                atom_indices.append(ligand.atoms.indices[atom])
+        return atom_indices
+        
+
+    def draw_figure(self,diagramm_type, ligand_name, output_name, grofile, xtcfile):
         """Draws a clean version of the ligand (might need some """
         #Nicer ligand drawing (still needs work)
         AllChem.Compute2DCoords(self.ligand_rdkit)
         drawer = rdMolDraw2D.MolDraw2DSVG(600,300)
         opts = drawer.drawOptions()
-        drawer.DrawMolecule(self.ligand_rdkit)
+        #Check whether solvent exposure drawing needed - at the moment just for single grofiles
+        if xtcfile=="None":
+            atom_indices = lig.find_solvent_exp_atoms(grofile, ligand_name)
+            drawer.DrawMolecule(self.ligand_rdkit, highlightAtoms=atom_indices)
+        else:
+            drawer.DrawMolecule(self.ligand_rdkit)
         drawer.FinishDrawing()
         svg = drawer.GetDrawingText().replace('svg:','')
 
@@ -410,6 +430,10 @@ class LigandInteractions(object):
         filesvg = open("molecule_final.svg", "w+")
         filesvg.write(svg)
         filesvg.close()
+
+        #Change the solvent exposure colour from red to blue
+        for i, line in enumerate(fileinput.input('molecule_final.svg', inplace=1)):
+            sys.stdout.write(line.replace("FF7F7F","deebf7"))
 
         #Start by adding the bigger box
         filesvg = open("molecule_final.svg", "r")
