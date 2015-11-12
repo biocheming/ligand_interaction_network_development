@@ -5,7 +5,7 @@ if __name__ == '__main__':
 
 	#################################################################################################################
 
-	parser = ArgumentParser(description='Counts the occurance of protein residues within a specified cutoff from a ligand from a simulation file.')
+	parser = ArgumentParser(description='Analysis and visualisation tool for protein ligand interactions. Requires rdkit, shapely, MDAnalysis modules.')
 	#parser.add_argument('-j', '--jobname', dest = 'jobname', help ='Name of folder in which output files will be stored')
 	parser.add_argument('-i', '--topology', dest = 'grofile', help='Input File name of topology file. Accepts gro, pdb files')
 	parser.add_argument('-t', '--trajectory', dest = "xtcfile", nargs="*", default='None', help='Input File name of trajectory file(s). Accepts up to 3 xtc files (Optional. Default: "None")')
@@ -13,7 +13,7 @@ if __name__ == '__main__':
 	#parser.add_argument('-p', '--input4', dest = "prot_sel", default = 'protein', help='MDAnalysis string for selection of protein (Optional. Default: "protein").')
 	parser.add_argument('-c', '--cutoff', dest = "cutoff", default = 3.5, help='Input cutoff distance from the ligand that is taken into account in angstroms (Example: 3.5).')
 	parser.add_argument('-ro', '--residueoffset', dest = "offset", default = 0, help='Input the number of offset residues for the protein. (Optional, default is 0)')
-	parser.add_argument('-d', '--diagram_type', dest = "diagram_type", default="amino", help='Input type of diagramm required. Options: "clock" for clock diagrams (Only available with trajectory present), "helices" (NOT YET IMPLEMENTED) for diagrams representing residue membership to certain helices (requires user input to determine helices), "amino" showing the amino acid type')
+	parser.add_argument('-d', '--diagram_type', dest = "diagram_type", default="amino", help='Input type of diagramm required. Options: "clock" for clock diagrams (Only available with trajectory present), "helices" for diagrams representing residue membership to certain helices (requires user input to determine helices), "amino" showing the amino acid type')
 	parser.add_argument('-hf', '--helix_file', dest = "helix_file", default="None", help='Input file for helices of your protein. To see the required format, check README or our GitHub page')
 	args = parser.parse_args()
 
@@ -61,9 +61,13 @@ if __name__ == '__main__':
 	lig.make_new_projection_values()
 	lig.get_projection_values()
 	lig.get_x_y_values()
+	list_of_plotted_svgs = lig.delete_svg()
 	lig.draw_figure(args.diagram_type, ligand_name, args.output_name, args.grofile, args.xtcfile)
 	file_list=[ligand_name+".pdb", "molecule_modified1.svg", "molecule_final.svg", "molecule.svg"]
 	for f in file_list:
+		os.remove(f)
+	for f in list_of_plotted_svgs:
+		print f
 		os.remove(f)
 	print "Ready!"
 

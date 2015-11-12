@@ -94,7 +94,7 @@ class LigandInteractions(object):
 
 
     def get_closest_residues(self, ligand_name, cutoff):
-
+        """Find the list of residues to be plotted using cutoff"""
         self.list_of_plotted_res=[]
         if self.occurance_run==True:
             #if only 1 traj is analysed
@@ -126,7 +126,7 @@ class LigandInteractions(object):
             residue_list = [atom.resid for atom in selection]
             for res in residue_list:
                 self.list_of_plotted_res.append(res)
-        print "closest res from gro"
+
         
 
     def get_closest_ligand_atoms(self, ligand_name):
@@ -165,7 +165,7 @@ class LigandInteractions(object):
         else:
             for  res in self.list_of_plotted_res:
                 self.dict_for_clock_diagramms[renumbered_residues[res-int(calculated_offset)]] = 1 
-        print "get closest lig from gro"      #give an arbitrary value of 1 so that matplotlib has something to plot
+    #give an arbitrary value of 1 so that matplotlib has something to plot
 
         
     def define_helices(self, helices_text_file, offset):
@@ -204,7 +204,13 @@ class LigandInteractions(object):
                         self.amino_acid_type[residue]=aa_type
         print "Defining amino acid type..."
 
-
+        #Matplotlib parameters
+    matplotlib.rcParams['svg.fonttype'] = 'none'
+    matplotlib.rcParams['font.family'] = ['sans-serif']
+    matplotlib.rcParams['font.sans-serif'] = ['Arial']
+    matplotlib.rcParams['font.weight']=900
+    matplotlib.rcParams['text.usetex'] = False
+    matplotlib.rcParams['patch.linewidth'] = 0  
 
     def plot_clock_diagramms(self):
         """Uses matplotlib to plot clock diagramms used for data analysis of trajectories, for example, occurance time  over timecourse of simulation"""
@@ -214,7 +220,7 @@ class LigandInteractions(object):
         colors_3=['#6a3d9a','white']
 
         for res in self.dict_for_clock_diagramms.keys():
-            plt.figure(figsize=(3, 3), dpi=80)
+            plt.figure(figsize=(1.12, 1.12))
             if len(self.dict_for_clock_diagramms[res])==1:
                 width=0.25
                 ring1,_=plt.pie([self.dict_for_clock_diagramms[res][0],100-self.dict_for_clock_diagramms[res][0]],  radius=1-width, startangle=90, colors=colors_1, counterclock=False)
@@ -229,15 +235,15 @@ class LigandInteractions(object):
                 ring3,_=plt.pie([self.dict_for_clock_diagramms[res][2],100-self.dict_for_clock_diagramms[res][2]],  radius=1+width, startangle=90, colors=colors_3, counterclock=False)
             plt.axis('equal')
             if len(self.dict_for_clock_diagramms[res])==1:
-                plt.setp(ring1, width=width, edgecolor='white')
-                plt.text(0,-0.25,res[0:3]+"\n"+res[3::],ha='center',size=32, fontweight='bold')
+                plt.setp(ring1, width=width)
+                plt.text(0,-0.4,res[0:3]+"\n"+res[3::],ha='center',size=16, fontweight='bold')
             elif len(self.dict_for_clock_diagramms[res])==2:
-                plt.setp(ring1+ring2, width=width, edgecolor='white')
-                plt.text(0,-0.3,res[0:3]+"\n"+res[3::],ha='center',size=28, fontweight='bold')
+                plt.setp(ring1+ring2, width=width)
+                plt.text(0,-0.4,res[0:3]+"\n"+res[3::],ha='center',size=12, fontweight='bold')
             elif len(self.dict_for_clock_diagramms[res])==3:
-                plt.setp(ring1+ring2+ring3, width=width, edgecolor='white')
-                plt.text(0,-0.35,res[0:3]+"\n"+res[3::],ha='center',size=24, fontweight='bold')
-            pylab.savefig(str(res[3::])+".png")
+                plt.setp(ring1+ring2+ring3, width=width)
+                plt.text(0,-0.375,res[0:3]+"\n"+res[3::],ha='center',size=10, fontweight='bold')
+            pylab.savefig(str(res[3::])+".svg", dpi=80, transparent=True)
             #plt.show()
         print "Plotting..."
 
@@ -246,32 +252,32 @@ class LigandInteractions(object):
         for res in self.dict_for_clock_diagramms:
             if res in self.residues_within_helix:
                 color = [self.colors_helices[self.residues_within_helix[res]],'white']
-                plt.figure(figsize=(3, 3), dpi=100)
+                plt.figure(figsize=(1.12,1.12))
                 ring1,_=plt.pie([1],  radius=1-width, startangle=90, colors=color, counterclock=False)
                 plt.axis('equal')
                 plt.setp(ring1, width=width, edgecolor='white')
-                plt.text(0,-0.25,res[0:3]+"\n"+res[3::],ha='center',size=32, fontweight='bold')
-                pylab.savefig(str(res[3::])+"_helices.png", transparent = True)
+                plt.text(0,-0.4,res[0:3]+"\n"+res[3::],ha='center',size=16, fontweight='bold')  
+                pylab.savefig(str(res[3::])+".svg", dpi=80, transparent = True)
             else:
                 color = [self.colors_helices[13], 'white'] # Matplotlib colors takes more than 1 color, so a second color must be added
-                plt.figure(figsize=(3, 3), dpi=100)
+                plt.figure(figsize=(1.12,1.12), dpi=100)
                 ring1,_=plt.pie([1],  radius=1-width, startangle=90, colors=color, counterclock=False)
                 plt.axis('equal')
                 plt.setp(ring1, width=width, edgecolor='white')
-                plt.text(0,-0.25,res[0:3]+"\n"+res[3::],ha='center',size=32, fontweight='bold')
-                pylab.savefig(str(res[3::])+"_helices.png", transparent=True)
+                plt.text(0,-0.4,res[0:3]+"\n"+res[3::],ha='center',size=16, fontweight='bold')  
+                pylab.savefig(str(res[3::])+".svg", dpi=80, transparent=True)
         print "Plotting..."
 
     def plot_amino_diagramms(self):
         for res in self.amino_acid_type:
             color = [self.colors_amino_acids[self.amino_acid_type[res]],'white']
-            plt.figure(figsize=(3,3), dpi=100)
+            plt.figure(figsize=(1.12,1.12))
             #plot a random value (1) at the moment
             ring1,_=plt.pie([1],  radius=1, startangle=90, colors=color, counterclock=False)
             plt.axis('equal')
             plt.setp(ring1, width=1, edgecolor=self.colors_amino_acids[self.amino_acid_type[res]])
-            plt.text(0,-0.4,res[0:3]+"\n"+res[3::],ha='center',size=36, fontweight="bold")
-            pylab.savefig(str(res[3::])+"_amino.png", transparent = True)
+            plt.text(0,-0.5,res[0:3]+"\n"+res[3::],ha='center',size=18, fontweight="bold")
+            pylab.savefig(str(res[3::])+".svg",dpi=80, transparent = True)
         
         print "Plotting..."
 
@@ -286,6 +292,11 @@ class LigandInteractions(object):
         self.atom_names=[]
         for atom in ligand_mda.atoms.indices:
             self.atom_names.append(ligand_mda.atoms.names[atom])
+        x=0
+        while atom > len(self.atom_names)-1:
+            assert ligand_mda.atoms.names[atom]!=ligand_mda.atoms.names[atom+1], 'Give your atoms unique names'
+            x+=1
+
         # input the ligand in rkdit environment
         self.ligand_rdkit = Chem.MolFromPDBFile(ligand_name+".pdb")
         #Draw the initial SVG file from which the coordinates will be read
@@ -400,7 +411,7 @@ class LigandInteractions(object):
     def find_solvent_exp_atoms(self, grofile, ligand_name):
         solvent_exposed_atoms = []
         sol_exp = MDAnalysis.Universe(grofile)
-        solvent_exposed = sol_exp.select_atoms("resname "+ligand_name+" and not name H* and not around 3.35 protein ")
+        solvent_exposed = sol_exp.select_atoms("resname "+ligand_name+" and not name H* and not around 3.5 protein ")
         for atom in solvent_exposed.atoms.names:
             solvent_exposed_atoms.append(atom)
         ligand = MDAnalysis.Universe(ligand_name+".pdb")
@@ -409,7 +420,12 @@ class LigandInteractions(object):
             if ligand.atoms.names[atom] in solvent_exposed_atoms:
                 atom_indices.append(ligand.atoms.indices[atom])
         return atom_indices
-        
+    
+    def delete_svg(self):
+        list_of_plotted_svgs = []
+        for residue in self.list_of_plotted_res:
+            list_of_plotted_svgs.append(str(residue)+".svg")
+        return list_of_plotted_svgs
 
     def draw_figure(self,diagramm_type, ligand_name, output_name, grofile, xtcfile):
         """Draws a clean version of the ligand (might need some """
@@ -420,6 +436,7 @@ class LigandInteractions(object):
         #Check whether solvent exposure drawing needed - at the moment just for single grofiles
         if xtcfile=="None":
             atom_indices = lig.find_solvent_exp_atoms(grofile, ligand_name)
+            print atom_indices
             drawer.DrawMolecule(self.ligand_rdkit, highlightAtoms=atom_indices)
         else:
             drawer.DrawMolecule(self.ligand_rdkit)
@@ -445,29 +462,24 @@ class LigandInteractions(object):
         filesvg2.close()
         filesvg.close()
 
-        #put the graphs in 
-        if diagramm_type=="helices":
-            diagramm = "</g>"
-            for residue in self.x_coordinates_from_diagramm:
-                diagramm = diagramm+"<image xlink:href='"+str(residue)+"_helices.png' x='"+str(int(self.nearest_points[residue].x)-0)+"' y='"+str(int(self.nearest_points[residue].y)-40)+"' height='80px' width='80px'/>"
-        elif diagramm_type=="clock":
-            diagramm = "</g>" # The end of group element (ligand molecule drawing)
-            for residue in self.x_coordinates_from_diagramm:
-                diagramm = diagramm+"<image xlink:href='"+str(residue)+".png' x='"+str(int(self.nearest_points[residue].x)-20)+"' y='"+str(int(self.nearest_points[residue].y)-40)+"' height='80px' width='80px'/>"
-        elif diagramm_type=="amino":
-            diagramm = "</g>" # The end of group element (ligand molecule drawing)
-            for residue in self.x_coordinates_from_diagramm:
-                diagramm = diagramm+"<image xlink:href='"+str(residue)+"_amino.png' x='"+str(int(self.nearest_points[residue].x)-20)+"' y='"+str(int(self.nearest_points[residue].y)-40)+"' height='80px' width='80px'/>"
-            #make legend
-            x=20
-            for a in self.colors_amino_acids:
-                diagramm = diagramm+"<circle cx='"+str(x)+"' cy='20' r='15' fill='"+str(self.colors_amino_acids[a])+"' />" + "<text x='"+str(x+20)+"' y='25' fill='black' font-family='Verdana' font-size='14' >"+str(a)+"</text>"
-                x+=130
+        diagram="</g>"
+        for residue in self.list_of_plotted_res:
+            for i, line in enumerate(fileinput.input(str(residue)+'.svg', inplace=1)):
+                if i <= 8:
+                    continue
+                else:
+                    sys.stdout.write(line.replace ("</svg>","</g>"))
+            for i, line in enumerate(fileinput.input(str(residue)+'.svg', inplace=1)):        
+                sys.stdout.write(line.replace("</defs>","<g transform='translate("+str(int(self.nearest_points[residue].x)-40)+","+str(int(self.nearest_points[residue].y)-40)+")'>"))
+            for i, line in enumerate(fileinput.input(str(residue)+'.svg', inplace=1)):        
+                sys.stdout.write(line.replace("font-style:normal;","font-style:normal;font-weight:bold;"))
+            for i, line in enumerate(fileinput.input(str(residue)+'.svg', inplace=1)):
+                diagram = diagram+line
 
         filesvg = open("molecule_modified1.svg", "r")
         filesvg2 = open(output_name+".svg", "w")
         lines = filesvg.readlines()
-        total1= lines[:len(lines)-1]+[diagramm]+lines[len(lines)-1:]
+        total1= lines[:len(lines)-1]+[diagram]+lines[len(lines)-1:]
 
         filesvg2.writelines(total1)
         filesvg2.close()
